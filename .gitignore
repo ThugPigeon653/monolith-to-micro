@@ -1,0 +1,7 @@
+ecosystem-model/
+frontend/*
+!frontend/Dockerfile
+map/*
+!map/Dockerfile
+ecosystem/*
+!ecosystem/Dockerfile
