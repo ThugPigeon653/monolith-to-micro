@@ -1,0 +1,10 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: pgdb
+    environment:
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
