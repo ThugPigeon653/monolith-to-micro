@@ -5,3 +5,4 @@ map/*
 !map/Dockerfile
 ecosystem/*
 !ecosystem/Dockerfile
+!**/*/transform_*.py
