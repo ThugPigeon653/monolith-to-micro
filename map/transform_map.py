@@ -5,24 +5,24 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 loader:list[str]=[
-    "class CustomImageLoader:",
-    "    def __init__(self, map_path, use_object_storage=False):",
-    "        self.map_path = map_path",
-    "        self.use_object_storage = use_object_storage",
-    "    def open(self):",
-    "        if self.use_object_storage:",
-    "            response = requests.get('http://image_storage:8082/images/' + self.map_path)",
-    "            if response.status_code == 200:",
-    "                image_blob = np.array(Image.open(BytesIO(response.content)))",
-    "                return image_blob",
-    "            else:",
-    "                print(f\"Failed to fetch image {self.map_path}. Status code: {response.status_code}\")",
-    "                return None",
-    "        else:",
-    "            # Load image locally",
-    "            with Image.open(self.map_path) as image:",
-    "                image_blob = np.array(image)",
-    "            return image_blob"
+    "class CustomImageLoader:\n",
+    "    def __init__(self, map_path, use_object_storage=False):\n",
+    "        self.map_path = map_path\n",
+    "        self.use_object_storage = use_object_storage\n",
+    "    def open(self):\n",
+    "        if self.use_object_storage:\n",
+    "            response = requests.get('http://image_storage:8082/images/' + self.map_path)\n",
+    "            if response.status_code == 200:\n",
+    "                image_blob = np.array(Image.open(BytesIO(response.content)))\n",
+    "                return image_blob\n",
+    "            else:\n",
+    "                print(f\"Failed to fetch image {self.map_path}. Status code: {response.status_code}\")\n",
+    "                return None\n",
+    "        else:\n",
+    "            # Load image locally\n",
+    "            with Image.open(self.map_path) as image:\n",
+    "                image_blob = np.array(image)\n",
+    "            return image_blob\n"
 ]
 
 def transform(filename:str="map.py"):
@@ -30,30 +30,34 @@ def transform(filename:str="map.py"):
         lines = file.readlines()
 
     new_lines = []
-    new_lines.append("import requests\n")    
+    new_lines.append("import requests\n")
+    new_lines.append("from io import BytesIO\n") 
     new_lines.append('\n')
-    new_lines.append('def get_conn():')
+    new_lines.append('def get_conn():\n')
     new_lines.append('  sql_server = os.getenv(\"SQL_SERVER\")\n')
     new_lines.append('  sql_uid = os.getenv("SQL_UID")\n')
     new_lines.append('  sql_pwd = os.getenv("SQL_PWD")\n')
-    new_lines.append('  cls.connection = psycopg2.connect(\n')
+    new_lines.append('  connection = psycopg2.connect(\n')
     new_lines.append('      host=sql_server,\n')
     new_lines.append('      port=5432,\n')
     new_lines.append('      database=sql_uid,\n')
     new_lines.append('      user=sql_uid,\n')
     new_lines.append('      password=sql_pwd\n')
     new_lines.append('  )\n')
-    new_lines.append('  cls.cursor = cls.connection.cursor()\n')
+    new_lines.append('  return connection\n')
+    new_lines.append('\n')
+    for subline in loader:
+        new_lines.append(subline)
+    new_lines.append('\n')
     for line in lines:
+        replacement_line:str=""
         is_written_connection:bool=False
         if not is_written_connection and line.strip()=="":
             is_written_connection=True
-            for subline in loader:
-                new_lines.append(subline)
-        if "animal_database.db" in line and "sqlite3.connect" not in line:
+        if ("animal_database.db" in line and "sqlite3.connect" not in line) or "db_connection" in line:
             replacement_line="\n"
         elif "sqlite3.connect" in line:
-            replacement_line=line.split('=')[0]+'=get_conn()'
+            replacement_line=line.split('=')[0]+'=get_conn()\n'
         elif "import sqlite3" in line:
             replacement_line="import psycopg2\n"
         else:

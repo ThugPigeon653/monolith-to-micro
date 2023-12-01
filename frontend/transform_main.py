@@ -4,24 +4,24 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 loader:list[str]=[
-    "class CustomImageLoader:",
-    "    def __init__(self, map_path, use_object_storage=False):",
-    "        self.map_path = map_path",
-    "        self.use_object_storage = use_object_storage",
-    "    def open(self):",
-    "        if self.use_object_storage:",
-    "            response = requests.get('http://image_storage:8082/images/' + self.map_path)",
-    "            if response.status_code == 200:",
-    "                image_blob = np.array(Image.open(BytesIO(response.content)))",
-    "                return image_blob",
-    "            else:",
-    "                print(f\"Failed to fetch image {self.map_path}. Status code: {response.status_code}\")",
-    "                return None",
-    "        else:",
-    "            # Load image locally",
-    "            with Image.open(self.map_path) as image:",
-    "                image_blob = np.array(image)",
-    "            return image_blob"
+    "class CustomImageLoader:\n",
+    "    def __init__(self, map_path, use_object_storage=False):\n",
+    "        self.map_path = map_path\n",
+    "        self.use_object_storage = use_object_storage\n",
+    "    def open(self):\n",
+    "        if self.use_object_storage:\n",
+    "            response = requests.get('http://image_storage:8082/images/' + self.map_path)\n",
+    "            if response.status_code == 200:\n",
+    "                image_blob = np.array(Image.open(BytesIO(response.content)))\n",
+    "                return image_blob\n",
+    "            else:\n",
+    "                print(f\"Failed to fetch image {self.map_path}. Status code: {response.status_code}\")\n",
+    "                return None\n",
+    "        else:\n",
+    "            # Load image locally\n",
+    "            with Image.open(self.map_path) as image:\n",
+    "                image_blob = np.array(image)\n",
+    "            return image_blob\n"
 ]
 
 def transform(filename:str="main.py"):
@@ -30,6 +30,8 @@ def transform(filename:str="main.py"):
 
     new_lines = []
     new_lines.append("import requests\n\n")  
+    new_lines.append("from io import BytesIO\n\n")  
+    new_lines.append("import numpy as np\n\n")  
     for line in loader:
         new_lines.append(line)  
     new_lines.append('\n')
@@ -41,14 +43,13 @@ def transform(filename:str="main.py"):
             for char in range(0,leading_spaces):
                 replacement_line+=" "
             replacement_line+='requests.request("GET", "http://ecosystem:8081")\n'
-        elif "task." in line:
-            print(line+'\n\n\n')
+        elif "task." in line or "world_visualizer" in line:
             replacement_line="\n"
         else:
             replacement_line=line
         new_lines.append(replacement_line)
 
     with open(filename, 'w') as file:
-        file.writelines([""])
+        file.writelines(new_lines)
 
 transform()

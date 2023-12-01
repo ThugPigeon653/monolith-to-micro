@@ -11,8 +11,25 @@ def transform(filename:str="ecosystem.py"):
     for line in lines:
         if "animal_database.db" in line and "sqlite3.connect" not in line:
             replacement_line="\n"
-        elif "sqlite3.connect" in line:
-            replacement_line+='sql_server = os.getenv(\"SQL_SERVER\")\nsql_uid = os.getenv("SQL_UID")\nsql_pwd = os.getenv("SQL_PWD")\ncls.connection = psycopg2.connect(\n    host=sql_server,\n    port=5432,\n    database=sql_uid,\n    user=sql_uid,\n    password=sql_pwd\n)\ncls.cursor = cls.connection.cursor()\n'
+        elif "sqlite3.connect" in line:            
+            new_lines = []
+            new_lines.append("import requests\n")
+            new_lines.append("import psycopg2\n")
+            new_lines.append("from io import BytesIO\n") 
+            new_lines.append('\n')
+            new_lines.append('def get_conn():\n')
+            new_lines.append('sql_server = os.getenv(\"SQL_SERVER\")\n')
+            new_lines.append('sql_uid = os.getenv("SQL_UID")\n')
+            new_lines.append('sql_pwd = os.getenv("SQL_PWD")\n')
+            new_lines.append('conn = psycopg2.connect(\n')
+            new_lines.append('    host=sql_server,\n')
+            new_lines.append('    port=5432,\n')
+            new_lines.append('    database=sql_uid,\n')
+            new_lines.append('    user=sql_uid,\n')
+            new_lines.append('    password=sql_pwd\n')
+            new_lines.append(')\n')
+            new_lines.append('\n')
+            replacement_line=""
         elif "import sqlite3" in line:
             replacement_line="import psycopg2\n"
         elif "def initialize(" in line:

@@ -9,4 +9,6 @@ WORKDIR /app
 
 COPY ecosystem.py /app/
 
+RUN pip install psycopg2-binary
+
 CMD ["python", "/app/ecosystem.py"]

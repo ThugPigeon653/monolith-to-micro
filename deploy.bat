@@ -5,4 +5,3 @@ copy ecosystem-model\src\world_visualizer.py map\map.py
 python frontend/transform_main.py
 python ecosystem/transform_eco.py
 python map/transform_map.py
-pause
