@@ -8,3 +8,12 @@ services:
       POSTGRES_PASSWORD: mypassword
     ports:
       - "5432:5432"
+
+  image_storage:
+    build:
+      context: .
+      dockerfile: Dockerfile_storage
+    volumes:
+      - ./images:/app/images
+    ports:
+      - "8082:80"
